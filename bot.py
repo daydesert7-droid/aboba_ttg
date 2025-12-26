@@ -3,7 +3,8 @@ import sys
 import logging
 import sqlite3
 import time
-from telegram import Update
+from flask import Flask, request, jsonify
+from telegram import Update, Bot
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram.constants import ParseMode
 
@@ -20,38 +21,28 @@ if not CREATOR_ID:
     CREATOR_ID = os.environ.get('BOTHOST_CREATOR_ID', '')
 
 print("=" * 50)
-print("ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ bothost.ru:")
+print("WEBHOOK БОТ ДЛЯ BOTHOST.RU")
 print("=" * 50)
-
-for key, value in sorted(os.environ.items()):
-    if key.startswith('BOTHOST_') or key.startswith('BOT_') or key.startswith('TELEGRAM_'):
-        masked_value = value[:4] + "***" + value[-4:] if len(value) > 8 and 'TOKEN' in key else value
-        print(f"{key}: {masked_value}")
-
+print(f"Токен: {'✓ установлен' if TOKEN else '✗ НЕТ'}")
+print(f"Создатель: {CREATOR_ID if CREATOR_ID else 'не указан'}")
+print(f"Webhook URL: {WEBHOOK_URL}")
 print("=" * 50)
 
 if not TOKEN:
-    print("❌ КРИТИЧЕСКАЯ ОШИБКА: Токен бота не найден!")
-    print("Доступные переменные окружения:")
-    for key in os.environ.keys():
-        if 'TOKEN' in key or 'BOT' in key:
-            print(f"  - {key}")
+    print("❌ ОШИБКА: Токен бота не найден!")
+    print("Добавьте переменную BOT_TOKEN в настройках bothost.ru")
     sys.exit(1)
-
-print(f"✅ Используется токен: {TOKEN[:10]}...")
-if CREATOR_ID:
-    print(f"✅ ID создателя: {CREATOR_ID}")
-else:
-    print("⚠️ ID создателя не указан")
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO,
-    handlers=[
-        logging.StreamHandler()
-    ]
+    level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
+app = Flask(__name__)
+bot = Bot(token=TOKEN)
+
+application = Application.builder().token(TOKEN).build()
 
 MAX_MESSAGE_LENGTH = 150
 WELCOME_IMAGE_PATH = "world_start.jpg"
