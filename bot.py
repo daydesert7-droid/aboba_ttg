@@ -3,7 +3,6 @@ import sys
 import logging
 import sqlite3
 import time
-from flask import Flask, request, jsonify
 from telegram import Update, Bot
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram.constants import ParseMode
@@ -25,7 +24,6 @@ print("WEBHOOK БОТ ДЛЯ BOTHOST.RU")
 print("=" * 50)
 print(f"Токен: {'✓ установлен' if TOKEN else '✗ НЕТ'}")
 print(f"Создатель: {CREATOR_ID if CREATOR_ID else 'не указан'}")
-print(f"Webhook URL: {WEBHOOK_URL}")
 print("=" * 50)
 
 if not TOKEN:
@@ -38,9 +36,6 @@ logging.basicConfig(
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
-
-app = Flask(__name__)
-bot = Bot(token=TOKEN)
 
 application = Application.builder().token(TOKEN).build()
 
