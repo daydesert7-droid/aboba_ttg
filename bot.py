@@ -7,18 +7,49 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram.constants import ParseMode
 
-TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '').strip()
-CREATOR_ID = os.environ.get('TELEGRAM_CREATOR_ID', '').strip()
+TOKEN = os.environ.get('BOT_TOKEN', '')
+if not TOKEN:
+    TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+if not TOKEN:
+    TOKEN = os.environ.get('BOTHOST_BOT_TOKEN', '')
+
+CREATOR_ID = os.environ.get('CREATOR_ID', '')
+if not CREATOR_ID:
+    CREATOR_ID = os.environ.get('TELEGRAM_CREATOR_ID', '')
+if not CREATOR_ID:
+    CREATOR_ID = os.environ.get('BOTHOST_CREATOR_ID', '')
 
 print("=" * 50)
-print(f"Бот инициализирован:")
-print(f"TOKEN: {'установлен' if TOKEN else 'НЕТ'}")
-print(f"CREATOR_ID: {CREATOR_ID}")
+print("ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ bothost.ru:")
 print("=" * 50)
+
+for key, value in sorted(os.environ.items()):
+    if key.startswith('BOTHOST_') or key.startswith('BOT_') or key.startswith('TELEGRAM_'):
+        masked_value = value[:4] + "***" + value[-4:] if len(value) > 8 and 'TOKEN' in key else value
+        print(f"{key}: {masked_value}")
+
+print("=" * 50)
+
+if not TOKEN:
+    print("❌ КРИТИЧЕСКАЯ ОШИБКА: Токен бота не найден!")
+    print("Доступные переменные окружения:")
+    for key in os.environ.keys():
+        if 'TOKEN' in key or 'BOT' in key:
+            print(f"  - {key}")
+    sys.exit(1)
+
+print(f"✅ Используется токен: {TOKEN[:10]}...")
+if CREATOR_ID:
+    print(f"✅ ID создателя: {CREATOR_ID}")
+else:
+    print("⚠️ ID создателя не указан")
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.INFO,
+    handlers=[
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
 
