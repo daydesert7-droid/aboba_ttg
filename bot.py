@@ -36,7 +36,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 MAX_MESSAGE_LENGTH = 150
-WELCOME_IMAGE_PATH = "world_start.jpg"
+WELCOME_IMAGE_PATH = "https://imgur.com/a/7SjC2Cz"
 
 def format_time_remaining(hours, minutes):
     """Форматирование времени с правильными склонениями"""
