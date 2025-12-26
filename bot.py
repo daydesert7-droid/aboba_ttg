@@ -192,7 +192,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'Отправь мне сообщение, и оно опубликуется в канале "мир знает, что".'
         )
         
-        photo_url = "https://i.imgur.com/T7NwVMD.jpeg"
+        photo_url = "https://i.ibb.co/S4cHQWL9/world-start.jpg"
         
         try:
             await update.message.reply_photo(
