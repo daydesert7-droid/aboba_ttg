@@ -20,8 +20,6 @@ if not CREATOR_ID:
     CREATOR_ID = os.environ.get('BOTHOST_CREATOR_ID', '')
 
 print("=" * 50)
-print("WEBHOOK БОТ ДЛЯ BOTHOST.RU")
-print("=" * 50)
 print(f"Токен: {'✓ установлен' if TOKEN else '✗ НЕТ'}")
 print(f"Создатель: {CREATOR_ID if CREATOR_ID else 'не указан'}")
 print("=" * 50)
@@ -37,12 +35,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-application = Application.builder().token(TOKEN).build()
-
 MAX_MESSAGE_LENGTH = 150
 WELCOME_IMAGE_PATH = "world_start.jpg"
 
 def format_time_remaining(hours, minutes):
+    """Форматирование времени с правильными склонениями"""
+    hours_text = ""
+    minutes_text = ""
+    
     if hours > 0:
         if hours == 1 or hours == 21:
             hours_text = f"{hours} час"
@@ -255,23 +255,28 @@ async def handle_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE
         )
         await update.message.reply_text(confirmation_text, parse_mode=ParseMode.HTML)
 
-        user_mention = get_user_mention(user)
-        
-        info_message = (
-            f"Новое сообщение от {user_mention}:"
-        )
-        
-        await context.bot.send_message(
-    chat_id=CREATOR_ID, 
-    text=info_message,
-    parse_mode=ParseMode.HTML
-        )
-
-        await context.bot.send_message(
-    chat_id=CREATOR_ID, 
-    text=message_text,
-    parse_mode=ParseMode.HTML
-        )
+        if CREATOR_ID:
+            try:
+                user_mention = get_user_mention(user)
+                
+                info_message = f"Новое сообщение от {user_mention}:"
+                await context.bot.send_message(
+                    chat_id=CREATOR_ID, 
+                    text=info_message,
+                    parse_mode=ParseMode.HTML
+                )
+                
+                await context.bot.send_message(
+                    chat_id=CREATOR_ID, 
+                    text=message_text,
+                    parse_mode=ParseMode.HTML
+                )
+                
+                logger.info(f"Два уведомления отправлены создателю {CREATOR_ID}")
+            except Exception as e:
+                logger.error(f"Ошибка отправки уведомления создателю: {e}")
+        else:
+            logger.warning("CREATOR_ID не указан, уведомление не отправлено")
         
         logger.info(f"Сообщение от пользователя {user_id} успешно обработано ({message_length} символов)")
         
