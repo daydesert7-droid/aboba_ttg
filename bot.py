@@ -36,7 +36,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 MAX_MESSAGE_LENGTH = 150
-WELCOME_IMAGE_PATH = "https://imgur.com/a/7SjC2Cz"
+WELCOME_IMAGE_PATH = "world_start.jpg"
 
 def format_time_remaining(hours, minutes):
     """Форматирование времени с правильными склонениями"""
@@ -192,21 +192,30 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'Отправь мне сообщение, и оно опубликуется в канале "мир знает, что".'
         )
         
-        if os.path.exists(WELCOME_IMAGE_PATH):
-            try:
-                with open(WELCOME_IMAGE_PATH, 'rb') as photo:
-                    await update.message.reply_photo(
-                        photo=photo,
-                        caption=welcome_text,
-                        parse_mode=ParseMode.HTML
-                    )
-                logger.info(f"Пользователь {update.effective_user.id} использовал /start с изображением")
-            except Exception as e:
-                logger.error(f"Ошибка отправки изображения: {e}")
+        photo_url = "https://i.imgur.com/T7NwVMD.jpeg"
+        
+        try:
+            await update.message.reply_photo(
+                photo=photo_url,
+                caption=welcome_text,
+                parse_mode=ParseMode.HTML
+            )
+            logger.info(f"Пользователь {update.effective_user.id} использовал /start с изображением по URL")
+        except Exception as e:
+            logger.error(f"Ошибка отправки изображения по URL: {e}")
+            if WELCOME_IMAGE_PATH and os.path.exists(WELCOME_IMAGE_PATH):
+                try:
+                    with open(WELCOME_IMAGE_PATH, 'rb') as photo:
+                        await update.message.reply_photo(
+                            photo=photo,
+                            caption=welcome_text,
+                            parse_mode=ParseMode.HTML
+                        )
+                except Exception as e2:
+                    logger.error(f"Ошибка отправки локального изображения: {e2}")
+                    await update.message.reply_text(welcome_text, parse_mode=ParseMode.HTML)
+            else:
                 await update.message.reply_text(welcome_text, parse_mode=ParseMode.HTML)
-        else:
-            logger.warning(f"Файл {WELCOME_IMAGE_PATH} не найден")
-            await update.message.reply_text(welcome_text, parse_mode=ParseMode.HTML)
             
     except Exception as e:
         logger.error(f"Ошибка в команде /start: {e}")
